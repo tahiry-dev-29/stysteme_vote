@@ -1,57 +1,74 @@
-import React, { createContext, useState, useMemo, useEffect } from 'react';
-import authService from '../services/auth'; // On importe notre nouveau service
+// @ts-ignore
+import React, { createContext, useState, useEffect } from 'react';
+import authService from '../services/auth';
 
-// Création du contexte
-export const AuthContext = createContext(null);
+const AuthContext = createContext(null);
 
-// Création du fournisseur de contexte
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true); // Pour savoir si on vérifie l'auth au chargement
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Au premier chargement, on vérifie si un token valide existe
-    useEffect(() => {
-        const currentUser = authService.getCurrentUser();
-        if (currentUser) {
+    const refreshUser = async () => {
+        try {
+            const currentUser = authService.getCurrentUser();
+            // @ts-ignore
             setUser(currentUser);
+        } catch (error) {
+            console.error("Erreur lors du rafraîchissement de l'utilisateur:", error);
+            setUser(null);
         }
-        setLoading(false);
-    }, []);
-
-    // Fonction de connexion asynchrone
-    const login = async (credentials) => {
-        const data = await authService.login(credentials);
-        const currentUser = authService.getCurrentUser();
-        setUser(currentUser);
-        return data; // On retourne la réponse de l'API (utile pour la redirection)
     };
 
-    // Fonction d'inscription asynchrone
-    const signup = async (userData) => {
-        const data = await authService.signup(userData);
-        const currentUser = authService.getCurrentUser();
-        setUser(currentUser);
-        return data;
-    }
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            try {
+                const currentUser = authService.getCurrentUser();
+                // @ts-ignore
+                setUser(currentUser);
+            } catch (error) {
+                console.error("Erreur lors de la vérification de l'authentification:", error);
+                setUser(null);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    // Fonction de déconnexion
+        checkAuthStatus();
+    }, []);
+
+    const login = async (credentials) => {
+        try {
+            await authService.login(credentials);
+            await refreshUser();
+            return true;
+        } catch (error) {
+            console.error("Échec de la connexion dans AuthContext:", error);
+            setUser(null);
+            throw error;
+        }
+    };
+
     const logout = () => {
         authService.logout();
         setUser(null);
     };
 
-    const value = useMemo(
-        () => ({
-            user,
-            login,
-            signup,
-            logout,
-            isAuthenticated: !!user,
-            loading, // On expose l'état de chargement
-        }),
-        [user, loading]
-    );
+    const authContextValue = {
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        login,
+        logout,
+        refreshUser,
+    };
 
-    // On n'affiche rien tant qu'on ne sait pas si l'utilisateur est connecté ou non
-    return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider 
+// @ts-ignore
+        value={authContextValue}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
+
+export default AuthContext;
