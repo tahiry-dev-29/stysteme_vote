@@ -11,13 +11,13 @@ Plateforme de vote en ligne sécurisée, moderne et transparente. Développée a
 | Environnement | URL | Statut |
 |---|---|---|
 | **Production (Vercel)** | **https://civicballot.vercel.app** | ✅ Live |
-| **Custom Domain (is-a.dev)** | **https://civicballot.tahiry29.is-a.dev** | 🕒 En attente merge PR is-a.dev [#50074](https://github.com/is-a-dev/register/pull/50074) |
+| **Custom Domain (is-a.dev)** | **https://civicballot.tahiry29.is-a.dev** | 🕒 En attente merge PR is-a.dev [#50075](https://github.com/is-a-dev/register/pull/50075) |
 | **Portfolio** | https://tahiry29.is-a.dev | ✅ Live |
 
 > Le domaine `civicballot.tahiry29.is-a.dev` est un **nested subdomain** configuré via `is-a-dev/register` :
 > - `domains/civicballot.tahiry29.json` → `A: 216.198.79.1` (Vercel)
 > - `domains/_vercel.tahiry29.json` → `TXT: vc-domain-verify=civicballot.tahiry29.is-a.dev,64ea8ca86e5ac8ff8979`
-> PR : https://github.com/is-a-dev/register/pull/50074
+> PR : https://github.com/is-a-dev/register/pull/50075
 
 ---
 
@@ -100,7 +100,7 @@ vercel --prod --yes   # depuis Frontend/
 - **GitHub** : https://github.com/tahiry-dev-29/stysteme_vote
 - **Live Vercel** : https://civicballot.vercel.app
 - **Future is-a.dev** : https://civicballot.tahiry29.is-a.dev
-- **PR is-a.dev** : https://github.com/is-a-dev/register/pull/50074
+- **PR is-a.dev** : https://github.com/is-a-dev/register/pull/50075
 - **Portfolio** : https://tahiry29.is-a.dev
 
 ---
