@@ -26,6 +26,17 @@ exports.signup = async (req, res) => {
          city,
       } = req.body;
 
+      // --- Validation des entrées (anti-injection + hygiène des données) ---
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || typeof email !== "string" || !emailRegex.test(email)) {
+         return res.status(400).json({ message: "Email invalide." });
+      }
+      if (!password || typeof password !== "string" || password.length < 8) {
+         return res.status(400).json({
+            message: "Le mot de passe doit contenir au moins 8 caractères.",
+         });
+      }
+
       // Vérifier si l'email existe déjà
       const existingVoter = await Voter.findOne({ email });
       if (existingVoter) {
@@ -57,7 +68,6 @@ exports.signup = async (req, res) => {
       console.error("Erreur lors de l'inscription:", error); // Log d'erreur détaillé
       res.status(500).json({
          message: "Erreur lors de l'inscription",
-         error: error.message,
       });
    }
 };
@@ -66,6 +76,18 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
    try {
       const { email, password } = req.body;
+
+      // Validation basique : types primitifs uniquement (anti-injection NoSQL)
+      if (
+         !email ||
+         !password ||
+         typeof email !== "string" ||
+         typeof password !== "string"
+      ) {
+         return res
+            .status(400)
+            .json({ message: "Email et mot de passe requis." });
+      }
 
       // Vérifier si l'email existe
       const voter = await Voter.findOne({ email });
@@ -86,7 +108,6 @@ exports.login = async (req, res) => {
       console.error("Erreur lors de la connexion:", error);
       res.status(500).json({
          message: "Erreur lors de la connexion",
-         error: error.message,
       });
    }
 };
@@ -108,7 +129,6 @@ exports.logout = (req, res) => {
       console.error("Erreur lors de la déconnexion:", error);
       res.status(500).json({
          message: "Erreur lors de la déconnexion",
-         error: error.message,
       });
    }
 };

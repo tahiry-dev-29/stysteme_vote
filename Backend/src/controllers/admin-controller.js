@@ -9,7 +9,6 @@ exports.getAllVoters = async (req, res) => {
         console.error("Erreur lors de la récupération de tous les votants:", error);
         res.status(500).json({
             message: "Erreur lors de la récupération des votants",
-            error: error.message,
         });
     }
 };

@@ -1,6 +1,9 @@
 const Candidate = require("../models/candidate-model");
 const mongoose = require("mongoose");
 
+// Helper : vérifie qu'un ID est un ObjectId MongoDB valide (sinon → 400, pas 500)
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
+
 // --- CREATE a new candidate ---
 // Corresponds to: POST /api/candidates
 const createCandidate = async (req, res) => {
@@ -35,7 +38,6 @@ const createCandidate = async (req, res) => {
       console.error("Erreur lors de la création du candidat :", error);
       res.status(400).json({
          message: "Erreur lors de la création du candidat",
-         error: error.message,
       });
    }
 };
@@ -52,7 +54,7 @@ const getAllCandidates = async (req, res) => {
          "Erreur lors de la récupération de tous les candidats :",
          error
       );
-      res.status(500).json({ message: "Erreur serveur", error: error.message });
+      res.status(500).json({ message: "Erreur serveur" });
    }
 };
 
@@ -60,6 +62,9 @@ const getAllCandidates = async (req, res) => {
 // Corresponds to: GET /api/candidates/:id
 const getCandidateById = async (req, res) => {
    try {
+      if (!isValidId(req.params.id)) {
+         return res.status(400).json({ message: "ID invalide." });
+      }
       // On cherche un candidat par son ID dans les paramètres de la requête
       const candidate = await Candidate.findById(req.params.id);
       if (!candidate) {
@@ -71,7 +76,7 @@ const getCandidateById = async (req, res) => {
          `Erreur lors de la récupération du candidat par ID ${req.params.id} :`,
          error
       );
-      res.status(500).json({ message: "Erreur serveur", error: error.message });
+      res.status(500).json({ message: "Erreur serveur" });
    }
 };
 
@@ -79,6 +84,9 @@ const getCandidateById = async (req, res) => {
 // Corresponds to: PUT /api/candidates/:id
 const updateCandidate = async (req, res) => {
    try {
+      if (!isValidId(req.params.id)) {
+         return res.status(400).json({ message: "ID invalide." });
+      }
       // On cherche et met à jour le candidat par son ID avec les données du corps de la requête.
       // `new: true` pour retourner le document mis à jour.
       // `runValidators: true` pour réexécuter les validations du schéma Mongoose lors de la mise à jour.
@@ -101,7 +109,6 @@ const updateCandidate = async (req, res) => {
       );
       res.status(400).json({
          message: "Erreur lors de la mise à jour du candidat",
-         error: error.message,
       });
    }
 };
@@ -110,6 +117,9 @@ const updateCandidate = async (req, res) => {
 // Corresponds to: DELETE /api/candidates/:id
 const deleteCandidate = async (req, res) => {
    try {
+      if (!isValidId(req.params.id)) {
+         return res.status(400).json({ message: "ID invalide." });
+      }
       // On cherche et supprime le candidat par son ID
       const candidate = await Candidate.findByIdAndDelete(req.params.id);
       if (!candidate) {
@@ -121,7 +131,7 @@ const deleteCandidate = async (req, res) => {
          `Erreur lors de la suppression du candidat par ID ${req.params.id} :`,
          error
       );
-      res.status(500).json({ message: "Erreur serveur", error: error.message });
+      res.status(500).json({ message: "Erreur serveur" });
    }
 };
 
@@ -134,17 +144,24 @@ const addVoteToCandidate = async (req, res) => {
       const candidateId = req.params.id;
       const voterId = req.voter._id;
 
-      if (!voterId) {
-         return res.status(401).json({
-            message:
-               "Authentification requise. Vous devez être connecté pour voter.",
-         });
+      if (!isValidId(candidateId)) {
+         return res.status(400).json({ message: "ID de candidat invalide." });
       }
 
-      // On utilise directement le `voter` attaché à la requête par le middlewares
-      const voter = req.voter;
+      // Vérifie que le candidat existe AVANT de verrouiller le vote du votant
+      const existingCandidate = await Candidate.findById(candidateId);
+      if (!existingCandidate) {
+         return res.status(404).json({ message: "Candidat non trouvé." });
+      }
 
-      if (voter.hasVoted) {
+      // Mise à jour ATOMIQUE : ne réussit QUE si hasVoted est encore false.
+      // Élimine la race condition (2 requêtes simultanées → 1 seul vote passe).
+      const updatedVoter = await Voter.findOneAndUpdate(
+         { _id: voterId, hasVoted: false },
+         { $set: { hasVoted: true, dateLastVoted: new Date() } },
+         { new: true }
+      );
+      if (!updatedVoter) {
          return res
             .status(403)
             .json({ message: "Action non autorisée. Vous avez déjà voté." });
@@ -156,14 +173,6 @@ const addVoteToCandidate = async (req, res) => {
          { new: true }
       );
 
-      if (!updatedCandidate) {
-         return res.status(404).json({ message: "Candidat non trouvé." });
-      }
-
-      voter.hasVoted = true;
-      voter.dateLastVoted = new Date();
-      await voter.save();
-
       res.status(200).json({
          message: "Votre Candidate a été enregistré avec succès !",
          candidate: updatedCandidate,
@@ -173,7 +182,7 @@ const addVoteToCandidate = async (req, res) => {
          `Erreur lors de l'ajout d'un vote au candidat ID ${req.params.id} :`,
          error
       );
-      res.status(500).json({ message: "Erreur serveur", error: error.message });
+      res.status(500).json({ message: "Erreur serveur" });
    }
 };
 
