@@ -53,10 +53,11 @@ app.use(
    cors({
       origin: (origin, callback) => {
          // Autorise les requêtes sans origin (curl, Postman, same-origin)
+         // Origine inconnue → rejet silencieux (pas de header CORS, pas de 500)
          if (!origin || allowedOrigins.includes(origin)) {
             return callback(null, true);
          }
-         callback(new Error("Origine non autorisée par CORS"));
+         return callback(null, false);
       },
    })
 );
