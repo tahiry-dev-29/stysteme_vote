@@ -2,9 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import CandidateList from "../components/Candidate/CandidateList.jsx";
+import LoginPrompt from "../components/Candidate/LoginPrompt.jsx";
+import { useAuth } from '../hooks/useAuth';
 
 const HomePage = () => {
     const navigate = useNavigate();
+    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
     return (
         <div className="flex flex-col justify-center items-center min-h-[calc(100vh-120px)] px-4 py-8">
@@ -19,13 +22,13 @@ const HomePage = () => {
                 {}
                 <Button
                     label="Commencer à Voter"
-                    onClick={() => navigate('/vote')}
+                    onClick={() => navigate(isAuthenticated ? '/vote' : '/login')}
                     color="bg-indigo-700"
                     textColor="text-white"
                     hoverColor="hover:bg-indigo-600"
                     className="inline-block px-8 py-4 rounded-xl font-semibold text-lg shadow-lg transform hover:scale-105"
                 />
-                <CandidateList/>
+                {isAuthLoading ? null : isAuthenticated ? <CandidateList /> : <LoginPrompt />}
             </div>
         </div>
     );
