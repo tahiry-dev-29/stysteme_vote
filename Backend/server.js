@@ -4,8 +4,12 @@ const cors = require("cors");
 const connectDB = require("./src/config/database");
 
 // --- CONFIGURATION INITIALE ---
-// Charge les variables d'environnement du fichier .env
-dotenv.config();
+// Charge .env-production en production (NODE_ENV=production), sinon .env (développement local)
+if (process.env.NODE_ENV === "production") {
+   dotenv.config({ path: ".env-production" });
+} else {
+   dotenv.config();
+}
 
 // Lance la connexion à la base de données MongoDB
 connectDB();

@@ -4,11 +4,9 @@ const mongoose = require("mongoose");
 const connectDB = async () => {
    try {
       // On essaie de se connecter avec l'URL qui est dans le fichier .env
-      // Les options sont là pour éviter des avertissements dans la console
-      // @ts-ignore
+      // maxPoolSize est réduit pour respecter la limite de 100 connexions du free tier M0
       const conn = await mongoose.connect(process.env.MONGO_URI, {
-         useNewUrlParser: true,
-         useUnifiedTopology: true,
+         maxPoolSize: 10,
       });
 
       console.log(`🎉 MongoDB connecté avec succès: ${conn.connection.host}`);
