@@ -12,7 +12,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
-const crypto = require("crypto");
 const Candidate = require("../models/candidate-model");
 const Voter = require("../models/voters-model");
 
@@ -127,13 +126,20 @@ const randomPassword = () =>
       }
 
       // --- Admin ---
-      const adminEmail = (
-         process.env.SEED_ADMIN_EMAIL || "admin@vote-app.com"
-      ).toLowerCase();
-      const adminPassword =
-         process.env.SEED_ADMIN_PASSWORD || randomPassword();
+      // ⚠️ Sécurité : les credentials admin viennent EXCLUSIVEMENT de l'environnement.
+      // Aucune valeur par défaut dans le code (repo public).
+      const adminEmail = process.env.SEED_ADMIN_EMAIL;
+      const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+      if (!adminEmail || !adminPassword) {
+         console.error(
+            "❌ Variables manquantes : SEED_ADMIN_EMAIL et SEED_ADMIN_PASSWORD\n" +
+               "   doivent être définis dans .env / .env-production (ou l'environnement d'exécution).\n" +
+               "   Ne jamais écrire de credentials admin dans le code source."
+         );
+         process.exit(1);
+      }
       await Voter.create({
-         email: adminEmail,
+         email: adminEmail.toLowerCase(),
          password: await bcrypt.hash(adminPassword, 10),
          firstName: "Admin",
          lastName: "Système",
@@ -143,10 +149,7 @@ const randomPassword = () =>
          city: "Paris",
          isAdmin: true,
       });
-      console.log(`👑 Admin créé : ${adminEmail}`);
-      if (!process.env.SEED_ADMIN_PASSWORD) {
-         console.log(`🔑 Mot de passe admin (à conserver, affiché 1 fois) : ${adminPassword}`);
-      }
+      console.log(`👑 Admin créé : ${adminEmail} (mot de passe lu depuis l'environnement)`);
 
       // --- Votants (mots de passe identiques pour la démo, hashés individuellement) ---
       const demoPassword = await bcrypt.hash("Demo1234!", 10);
