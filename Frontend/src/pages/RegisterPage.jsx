@@ -112,7 +112,7 @@ const RegisterPage = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your.email@example.com"
+                    placeholder="Votre adresse email"
                     required
                     disabled={isLoading}
                 />
