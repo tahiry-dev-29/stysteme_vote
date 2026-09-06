@@ -6,28 +6,13 @@ Plateforme de vote en ligne sécurisée, moderne et transparente. Développée a
 
 ---
 
-## 🌐 Live Demo
-
-| Environnement | URL | Statut |
-|---|---|---|
-| **Production (Vercel)** | **https://civicballot.vercel.app** | ✅ Live |
-| **Custom Domain (is-a.dev)** | **https://civicballot.tahiry29.is-a.dev** | 🕒 En attente merge PR is-a.dev [#50075](https://github.com/is-a-dev/register/pull/50075) |
-| **Portfolio** | https://tahiry29.is-a.dev | ✅ Live |
-
-> Le domaine `civicballot.tahiry29.is-a.dev` est un **nested subdomain** configuré via `is-a-dev/register` :
-> - `domains/civicballot.tahiry29.json` → `A: 216.198.79.1` (Vercel)
-> - `domains/_vercel.tahiry29.json` → `TXT: vc-domain-verify=civicballot.tahiry29.is-a.dev,64ea8ca86e5ac8ff8979`
-> PR : https://github.com/is-a-dev/register/pull/50075
-
----
-
 ## ✨ Fonctionnalités
 
-- 🔐 Authentification JWT (signup/login/logout), hash bcrypt, protection brute-force (rate-limit 10/15min)
-- 🗳️ Gestion des candidats (CRUD admin, vote atomique, sanitisation anti-NoSQLi)
-- 👥 Gestion des votants (admin)
-- 🛡️ Hardening complet : helmet, CORS allowlist, rate-limit global 300/15min
-- ⚡ Frontend React Router + TanStack Query (cache 5min), Axios avec intercepteur token
+- Authentification JWT (signup/login/logout), hash bcrypt, protection brute-force (rate-limit 10/15min)
+- Gestion des candidats (CRUD admin, vote atomique, sanitisation anti-NoSQLi)
+- Gestion des votants (admin)
+- Hardening complet : helmet, CORS allowlist, rate-limit global 300/15min
+- Frontend React Router + TanStack Query (cache 5min), Axios avec intercepteur token
 
 ---
 
@@ -71,11 +56,11 @@ PORT=5000
 FRONTEND_URL=https://civicballot.vercel.app,https://civicballot.tahiry29.is-a.dev,http://localhost:5173
 ```
 
-> ⚠️ Après merge is-a.dev, mettre à jour `FRONTEND_URL` dans Backend/.env-production avec les deux domaines Vercel + is-a.dev pour CORS.
+> Après merge is-a.dev, mettre à jour `FRONTEND_URL` dans Backend/.env-production avec les deux domaines Vercel + is-a.dev pour CORS.
 
 ---
 
-## 📦 Déploiement
+## Déploiement
 
 ### Frontend — Vercel
 - Projet : `civicballot` (team `tahirydev29`, framework Vite)
@@ -95,7 +80,7 @@ vercel --prod --yes   # depuis Frontend/
 
 ---
 
-## 🔗 Liens
+## Liens
 
 - **GitHub** : https://github.com/tahiry-dev-29/stysteme_vote
 - **Live Vercel** : https://civicballot.vercel.app
@@ -105,7 +90,7 @@ vercel --prod --yes   # depuis Frontend/
 
 ---
 
-## 👤 Auteur
+## Auteur
 
 **Tahiry Dev 29** — Full-Stack Developer  
 GitHub : [@tahiry-dev-29](https://github.com/tahiry-dev-29) · Email : tahirydev29@gmail.com
